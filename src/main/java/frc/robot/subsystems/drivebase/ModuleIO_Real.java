@@ -7,7 +7,6 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.reduxrobotics.sensors.canandmag.Canandmag;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -157,11 +156,15 @@ public class ModuleIO_Real implements ModuleIO {
 
   @Override
   public SwerveModulePosition getModulePosition() {
-      return new SwerveModulePosition(drive.getPosition().getValueAsDouble() * Swerve.WheelDiameter * Math.PI, new Rotation2d(turn.getPosition().getValueAsDouble() * 2 * Math.PI));
-  }
-  @Override
-  public SwerveModuleState getModuleState() {
-    return new SwerveModuleState(drive.getVelocity().getValueAsDouble() * Swerve.WheelDiameter * Math.PI, new Rotation2d(turn.getVelocity().getValueAsDouble() * 2 * Math.PI));
+    return new SwerveModulePosition(
+        drive.getPosition().getValueAsDouble() * Swerve.WheelDiameter * Math.PI,
+        new Rotation2d(turn.getPosition().getValueAsDouble() * 2 * Math.PI));
   }
 
+  @Override
+  public SwerveModuleState getModuleState() {
+    return new SwerveModuleState(
+        drive.getVelocity().getValueAsDouble() * Swerve.WheelDiameter * Math.PI,
+        new Rotation2d(turn.getVelocity().getValueAsDouble() * 2 * Math.PI));
+  }
 }

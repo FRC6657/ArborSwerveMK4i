@@ -1,9 +1,8 @@
 package frc.robot.subsystems.drivebase;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
 
@@ -36,6 +35,11 @@ public interface ModuleIO {
 
   public default void changeTurnSetpoint(double rad) {}
 
-  public default SwerveModulePosition getModulePosition(){return new SwerveModulePosition();}
-  public default SwerveModuleState getModuleState(){return new SwerveModuleState();}
+  public default SwerveModulePosition getModulePosition() {
+    return new SwerveModulePosition();
+  }
+
+  public default SwerveModuleState getModuleState() {
+    return new SwerveModuleState();
+  }
 }

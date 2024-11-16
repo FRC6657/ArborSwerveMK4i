@@ -15,11 +15,11 @@ public class Module {
     this.name = name;
   }
 
-  public SwerveModulePosition getModulePosition(){
+  public SwerveModulePosition getModulePosition() {
     return io.getModulePosition();
   }
 
-  public SwerveModuleState getModuleState(){
+  public SwerveModuleState getModuleState() {
     return io.getModuleState();
   }
 
@@ -32,5 +32,4 @@ public class Module {
     io.updateInputs(inputs);
     Logger.processInputs("Swerve/" + name + "Module", inputs);
   }
-
 }

@@ -17,7 +17,11 @@ public class Constants {
     Swerve_FR_T(6),
     Swerve_BL_T(7),
     Swerve_BR_T(8),
-    Gyro(9);
+    Swerve_FL_E(9),
+    Swerve_FR_E(10),
+    Swerve_BL_E(11),
+    Swerve_BR_E(12),
+    Gyro(13);
 
     public int id;
 
@@ -68,16 +72,26 @@ public class Constants {
       public int driveID;
       public int turnID;
       public int encoderID;
-      public double encoderOffset;
 
-      public ModuleInformation(
-          String name, int driveID, int turnID, int encoderID, double encoderOffset) {
+      public ModuleInformation(String name, int driveID, int turnID, int encoderID) {
         this.name = name;
         this.driveID = driveID;
         this.turnID = turnID;
         this.encoderID = encoderID;
-        this.encoderOffset = encoderOffset;
       }
+
+      public static ModuleInformation frontLeft =
+          new ModuleInformation(
+              "Front Left ", CAN.Swerve_FL_D.id, CAN.Swerve_FL_T.id, CAN.Swerve_FL_E.id);
+      public static ModuleInformation frontRight =
+          new ModuleInformation(
+              "Front Right ", CAN.Swerve_FR_D.id, CAN.Swerve_FR_T.id, CAN.Swerve_FR_E.id);
+      public static ModuleInformation backLeft =
+          new ModuleInformation(
+              "Back Left ", CAN.Swerve_BL_D.id, CAN.Swerve_BL_T.id, CAN.Swerve_BL_E.id);
+      public static ModuleInformation backRight =
+          new ModuleInformation(
+              "Back Right ", CAN.Swerve_BR_D.id, CAN.Swerve_BR_T.id, CAN.Swerve_BR_E.id);
     }
   }
 }
