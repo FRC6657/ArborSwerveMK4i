@@ -52,6 +52,9 @@ public class ModuleIO_Real implements ModuleIO {
     turn = new TalonFX(moduleInformation.turnID);
     encoder = new Canandmag(moduleInformation.encoderID);
 
+    driveControl = new VelocityVoltage(0);
+    turnControl = new PositionVoltage(turn.getPosition().getValueAsDouble());
+
     var driveConfig = new TalonFXConfiguration();
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -65,6 +68,8 @@ public class ModuleIO_Real implements ModuleIO {
         (12d / (Motors.KrakenRPS * Swerve.DriveGearing.L3.reduction)); // TODO Verify
     driveConfig.Slot0.kP = 0; // TODO Tune
     driveConfig.Slot0.kD = 0; // TODO Tune
+
+    drive.getConfigurator().apply(driveConfig);
 
     driveApplied = drive.getMotorVoltage();
     driveStatorCurrent = drive.getStatorCurrent();
@@ -97,6 +102,8 @@ public class ModuleIO_Real implements ModuleIO {
     turnConfig.Slot0.kP = 0; // TODO Tune
     turnConfig.Slot0.kD = 0; // TODO Tune
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
+
+    turn.getConfigurator().apply(turnConfig);
 
     turnApplied = turn.getMotorVoltage();
     turnStatorCurrent = turn.getStatorCurrent();

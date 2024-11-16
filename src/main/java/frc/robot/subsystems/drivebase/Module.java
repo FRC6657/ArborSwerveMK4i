@@ -30,6 +30,6 @@ public class Module {
 
   public void updateInputs() {
     io.updateInputs(inputs);
-    Logger.processInputs("Swerve/" + name + "Module", inputs);
+    Logger.processInputs("Swerve/" + name + " Module", inputs);
   }
 }

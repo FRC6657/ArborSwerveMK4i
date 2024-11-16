@@ -47,9 +47,9 @@ public class Constants {
     public static Translation2d[] ModulePositions =
         new Translation2d[] {
           new Translation2d(TrackWidth / 2, TrackLength / 2),
+          new Translation2d(TrackWidth / 2, -TrackLength / 2),
           new Translation2d(-TrackWidth / 2, TrackLength / 2),
-          new Translation2d(-TrackWidth / 2, -TrackLength / 2),
-          new Translation2d(TrackWidth / 2, -TrackLength / 2)
+          new Translation2d(-TrackWidth / 2, -TrackLength / 2)
         };
 
     public static double TurnGearing = 150d / 7d;

@@ -1,4 +1,10 @@
 {
+  "java.configuration.runtimes": [
+  {
+    "name": "JavaSE-17",
+    "path": "c:\\Users\\Public\\wpilib\\2025\\jdk"
+  },
+  ],
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.server.launchMode": "Standard",
   "files.exclude": {
@@ -26,4 +32,6 @@
     },
   ],
   "java.test.defaultConfig": "WPIlibUnitTests"
+
 }
+
