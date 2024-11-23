@@ -42,7 +42,7 @@ public class GyroIO_Real implements GyroIO {
   }
 
   @Override
-  public void updateInputs(GyroIO_Inputs inputs) {
+  public void updateInputs(GyroIOInputs inputs) {
     inputs.yaw = Units.degreesToRadians(yaw.getValueAsDouble());
     inputs.pitch = Units.degreesToRadians(pitch.getValueAsDouble());
     inputs.roll = Units.degreesToRadians(roll.getValueAsDouble());

@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -110,7 +109,8 @@ public class ModuleIO_Sim implements ModuleIO {
     inputs.turnVelocity = turn.getVelocity().getValueAsDouble() * (2 * Math.PI);
     inputs.turnAcceleration = turnSim.getAngularAccelerationRadPerSecSq();
 
-    inputs.encoderAbsPosition = MathUtil.angleModulus(turn.getPosition().getValueAsDouble() * (2 * Math.PI)) + Math.PI;
+    inputs.encoderAbsPosition =
+        MathUtil.angleModulus(turn.getPosition().getValueAsDouble() * (2 * Math.PI)) + Math.PI;
     inputs.encoderRelPosition = turn.getPosition().getValueAsDouble() * (2 * Math.PI);
     inputs.encoderVelocity = turn.getVelocity().getValueAsDouble() * (2 * Math.PI);
   }

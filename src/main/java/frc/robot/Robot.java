@@ -19,6 +19,7 @@ import frc.robot.subsystems.drivebase.ModuleIO;
 import frc.robot.subsystems.drivebase.ModuleIO_Real;
 import frc.robot.subsystems.drivebase.ModuleIO_Sim;
 import frc.robot.subsystems.drivebase.Swerve;
+import frc.robot.subsystems.vision.ApriltagCamera;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -29,6 +30,8 @@ public class Robot extends LoggedRobot {
   private CommandXboxController driver = new CommandXboxController(0);
 
   private Swerve drivebase;
+
+  private ApriltagCamera camera;
 
   public Robot() {
 
@@ -48,6 +51,8 @@ public class Robot extends LoggedRobot {
                   new ModuleIO_Sim(ModuleInformation.backRight)
                 },
             RobotBase.isReal() ? new GyroIO_Real() : new GyroIO() {});
+
+    
   }
 
   @Override
@@ -68,7 +73,9 @@ public class Robot extends LoggedRobot {
             () ->
                 drivebase.drive(
                     new ChassisSpeeds(
-                        MathUtil.applyDeadband(-driver.getLeftY(), 0.1) * 5, MathUtil.applyDeadband(-driver.getLeftX(),0.1) * 5, MathUtil.applyDeadband(-driver.getRightX(),0.1) * 1d/4)),
+                        MathUtil.applyDeadband(-driver.getLeftY(), 0.1) * 5,
+                        MathUtil.applyDeadband(-driver.getLeftX(), 0.1) * 5,
+                        MathUtil.applyDeadband(-driver.getRightX(), 0.1) * 1d / 4)),
             drivebase));
 
     Logger.start();

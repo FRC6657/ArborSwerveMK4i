@@ -1,3 +1,12 @@
 package frc.robot.subsystems;
 
-public class Superstructure {}
+import frc.robot.subsystems.drivebase.Swerve;
+
+public class Superstructure {
+
+  Swerve drivebase;
+
+  public Superstructure(Swerve drivebase) {
+    this.drivebase = drivebase;
+  }
+}

@@ -1,6 +1,11 @@
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
@@ -29,6 +34,13 @@ public class Constants {
       this.id = id;
     }
   }
+
+  public record VisionConstants(
+      String cameraName,
+      Transform3d robotToCamera,
+      Matrix<N3, N3> intrinsicsMatrix,
+      Matrix<N8, N1> distCoeffs,
+      int[] cameraRes) {}
 
   public static class Motors {
 
