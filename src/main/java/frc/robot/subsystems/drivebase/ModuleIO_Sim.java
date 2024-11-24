@@ -51,7 +51,7 @@ public class ModuleIO_Sim implements ModuleIO {
     turnConfig.Slot0.kS = 0;
     turnConfig.Slot0.kA = 0;
     turnConfig.Slot0.kV = 0;
-    turnConfig.Slot0.kP = 25;
+    turnConfig.Slot0.kP = 150;
     turnConfig.Slot0.kD = 2.5;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
@@ -65,7 +65,7 @@ public class ModuleIO_Sim implements ModuleIO {
 
     turnSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getFalcon500(1), 0.001, 1),
+            LinearSystemId.createDCMotorSystem(DCMotor.getFalcon500(1), 0.0001, 1),
             DCMotor.getFalcon500(1));
   }
 

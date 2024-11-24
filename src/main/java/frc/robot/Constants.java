@@ -12,7 +12,7 @@ import edu.wpi.first.math.util.Units;
 
 public class Constants {
 
-  public static int mainLoopFrequency = 50; // Hz
+  public static double mainLoopFrequency = 50d; // Hz
 
   public static enum CAN {
     Swerve_FL_D(1),

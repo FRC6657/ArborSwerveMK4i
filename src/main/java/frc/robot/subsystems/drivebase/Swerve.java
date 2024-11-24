@@ -4,18 +4,23 @@
 
 package frc.robot.subsystems.drivebase;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -51,27 +56,32 @@ public class Swerve extends SubsystemBase {
     this.gyroIO = gyroIO;
   }
 
-  public void drive(ChassisSpeeds desiredSpeeds) {
+  public Command drive(Supplier<ChassisSpeeds> fieldRelativeSpeeds) {
 
-    ChassisSpeeds.fromFieldRelativeSpeeds(
-        desiredSpeeds, (RobotBase.isReal() ? new Rotation2d(gyroInputs.yaw) : simHeading));
+    return Commands.run(
+        () ->
+            this.driveChassisSpeeds(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    fieldRelativeSpeeds.get(), getPose().getRotation())),
+        this);
+  }
 
-    var desiredStates = kinematics.toSwerveModuleStates(desiredSpeeds);
-
+  public void driveChassisSpeeds(ChassisSpeeds desiredSpeeds) {
+    var newSpeeds = ChassisSpeeds.discretize(desiredSpeeds, 1 / Constants.mainLoopFrequency);
+    var states = kinematics.toSwerveModuleStates(newSpeeds);
     for (int i = 0; i < 4; i++) {
-      desiredStates[i].optimize(modules[i].getModuleState().angle);
-      modules[i].changeState(desiredStates[i]);
+      states[i].optimize(getModulePositions()[i].angle);
+      modules[i].changeState(states[i]);
     }
-
     Logger.recordOutput("Swerve/ChassisSpeedSetpoint", desiredSpeeds);
-    Logger.recordOutput("Swerve/Setpoints", desiredStates);
+    Logger.recordOutput("Swerve/Setpoints", states);
   }
 
   public Command resetOdometry(Pose2d newPose) {
     return Commands.runOnce(() -> poseEstimator.resetPose(newPose));
   }
 
-  @AutoLogOutput(key = "Serve/Positions")
+  @AutoLogOutput(key = "Swerve/Positions")
   public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] {
       modules[0].getModulePosition(),
@@ -91,7 +101,15 @@ public class Swerve extends SubsystemBase {
     };
   }
 
-  public void addVisionMeasurement() {}
+  public Pose2d getPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  public void addVisionMeasurement(Pose3d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {
+    if (RobotBase.isReal()) {
+      poseEstimator.addVisionMeasurement(getPose(), timestamp, stdDevs);
+    }
+  }
 
   public void periodic() {
 

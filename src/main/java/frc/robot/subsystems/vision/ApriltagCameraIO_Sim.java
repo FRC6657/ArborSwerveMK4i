@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.VisionConstants.CameraInfo;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -22,7 +23,7 @@ public class ApriltagCameraIO_Sim implements ApriltagCameraIO {
     var cameraProp = new SimCameraProperties();
     cameraProp.setCalibration(cameraInfo.cameraRes[0], cameraInfo.cameraRes[1], cameraInfo.diagFOV);
     cameraProp.setCalibError(0, 0);
-    cameraProp.setFPS(20);
+    cameraProp.setFPS(50);
     cameraProp.setAvgLatencyMs(50.0);
     cameraProp.setLatencyStdDevMs(5.0);
     this.camera = new PhotonCamera(cameraInfo.cameraName);
@@ -47,5 +48,10 @@ public class ApriltagCameraIO_Sim implements ApriltagCameraIO {
     } else {
       inputs.result = new PhotonPipelineResult();
     }
+  }
+
+  @Override
+  public void updateSimPose(Pose2d robotPose) {
+    sim.update(robotPose);
   }
 }

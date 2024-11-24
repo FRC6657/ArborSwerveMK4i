@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Swerve.ModuleInformation;
 import frc.robot.Constants.VisionConstants;
@@ -23,7 +22,6 @@ import frc.robot.subsystems.drivebase.Swerve;
 import frc.robot.subsystems.vision.ApriltagCamera;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Real;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Sim;
-
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -81,14 +79,12 @@ public class Robot extends LoggedRobot {
     }
 
     drivebase.setDefaultCommand(
-        Commands.run(
+        drivebase.drive(
             () ->
-                drivebase.drive(
-                    new ChassisSpeeds(
-                        MathUtil.applyDeadband(-driver.getLeftY(), 0.1) * 5,
-                        MathUtil.applyDeadband(-driver.getLeftX(), 0.1) * 5,
-                        MathUtil.applyDeadband(-driver.getRightX(), 0.1) * 1d / 4)),
-            drivebase));
+                new ChassisSpeeds(
+                    MathUtil.applyDeadband(-driver.getLeftY(), 0.1) * 5,
+                    MathUtil.applyDeadband(-driver.getLeftX(), 0.1) * 5,
+                    MathUtil.applyDeadband(-driver.getRightX(), 0.1) * 1d / 4)));
 
     LogTable.disableProtobufWarning();
     Logger.start();
@@ -96,9 +92,11 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-
     for (var camera : cameras) {
+      camera.updateSimPose(drivebase.getPose());
       camera.updateInputs();
+      drivebase.addVisionMeasurement(
+          camera.getEstimatedPose(), camera.getLatestTimestamp(), camera.getLatestStdDevs());
     }
 
     CommandScheduler.getInstance().run();
