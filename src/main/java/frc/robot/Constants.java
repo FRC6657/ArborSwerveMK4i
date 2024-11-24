@@ -1,11 +1,12 @@
 package frc.robot;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
@@ -35,12 +36,32 @@ public class Constants {
     }
   }
 
-  public record VisionConstants(
-      String cameraName,
-      Transform3d robotToCamera,
-      Matrix<N3, N3> intrinsicsMatrix,
-      Matrix<N8, N1> distCoeffs,
-      int[] cameraRes) {}
+  public static class VisionConstants {
+
+    public static class CameraInfo {
+
+      public String cameraName;
+      public Transform3d robotToCamera;
+      public Rotation2d diagFOV;
+      public int[] cameraRes;
+
+      public CameraInfo(
+          String cameraName, Transform3d robotToCamera, Rotation2d diagFOV, int[] cameraRes) {
+        this.cameraName = cameraName;
+        this.robotToCamera = robotToCamera;
+        this.diagFOV = diagFOV;
+        this.cameraRes = cameraRes;
+      }
+    }
+
+    public static CameraInfo cameraInfo =
+        new CameraInfo(
+            "Camera", new Transform3d(), Rotation2d.fromDegrees(95), new int[] {1280, 800});
+
+    public static final Matrix<N3, N1> singleTagStdDev =
+        VecBuilder.fill(0.4, 0.4, Double.MAX_VALUE);
+    public static final Matrix<N3, N1> multiTagStdDev = VecBuilder.fill(0.2, 0.2, Double.MAX_VALUE);
+  }
 
   public static class Motors {
 
@@ -51,6 +72,18 @@ public class Constants {
   }
 
   public static class Swerve {
+
+    public enum DriveGearing {
+      L1(19d / 25d),
+      L2(17d / 27d),
+      L3(16d / 28d);
+
+      public double reduction;
+
+      DriveGearing(double reduction) {
+        this.reduction = reduction * (50d / 14d) * (45d / 15d);
+      }
+    }
 
     public static double WheelDiameter = Units.inchesToMeters(4);
     public static double TrackWidth = 26 - 5.25; // Inches
@@ -65,18 +98,6 @@ public class Constants {
         };
 
     public static double TurnGearing = 150d / 7d;
-
-    public enum DriveGearing {
-      L1(19d / 25d),
-      L2(17d / 27d),
-      L3(16d / 28d);
-
-      public double reduction;
-
-      DriveGearing(double reduction) {
-        this.reduction = reduction * (50d / 14d) * (45d / 15d);
-      }
-    }
 
     public static class ModuleInformation {
 

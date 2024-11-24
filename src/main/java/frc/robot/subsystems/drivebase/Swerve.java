@@ -52,8 +52,9 @@ public class Swerve extends SubsystemBase {
   }
 
   public void drive(ChassisSpeeds desiredSpeeds) {
-    
-    desiredSpeeds.toFieldRelativeSpeeds((RobotBase.isReal() ? new Rotation2d(gyroInputs.yaw) : simHeading));
+
+    ChassisSpeeds.fromFieldRelativeSpeeds(
+        desiredSpeeds, (RobotBase.isReal() ? new Rotation2d(gyroInputs.yaw) : simHeading));
 
     var desiredStates = kinematics.toSwerveModuleStates(desiredSpeeds);
 
@@ -89,6 +90,8 @@ public class Swerve extends SubsystemBase {
       modules[3].getModuleState()
     };
   }
+
+  public void addVisionMeasurement() {}
 
   public void periodic() {
 

@@ -4,51 +4,51 @@
 
 package frc.robot.subsystems.vision;
 
-import java.util.Optional;
-import org.photonvision.EstimatedRobotPose;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import frc.robot.Constants.VisionConstants.CameraInfo;
+import org.littletonrobotics.junction.Logger;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonPipelineResult;
 
 public class ApriltagCamera {
 
   private final ApriltagCameraIO io;
-  private final ApriltagCameraIOInputsLogged inputs = new ApriltagCameraIOInputsLogged();
+  private final AprilTagCameraIOInputsAutoLogged inputs = new AprilTagCameraIOInputsAutoLogged();
 
-  public ApriltagCamera(ApriltagCameraIO io) {
+  private final PhotonPoseEstimator poseEstimator;
+  private final CameraInfo cameraInfo;
+
+  private Pose3d latestPose = new Pose3d();
+
+  public ApriltagCamera(ApriltagCameraIO io, CameraInfo cameraInfo) {
     this.io = io;
-  }
+    this.cameraInfo = cameraInfo;
 
-  public void setSimPose(
-      Optional<EstimatedRobotPose> simEst, ApriltagCamera camera, boolean newResult) {
-    this.io.setSimPose(simEst, camera, newResult);
+    poseEstimator =
+        new PhotonPoseEstimator(
+            AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo),
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            cameraInfo.robotToCamera);
   }
 
   public void updateInputs() {
     io.updateInputs(inputs);
+
+    var result = poseEstimator.update(inputs.result);
+
+    if (result.isPresent()) {
+      latestPose = result.get().estimatedPose;
+    } else {
+      latestPose = new Pose3d();
+    }
+
+    Logger.processInputs("Vision/ApriltagCameras/" + cameraInfo.cameraName + "/", inputs);
+    Logger.recordOutput("Vision/ApriltagCameras/" + cameraInfo.cameraName + "/Pose", latestPose);
   }
 
-  public Optional<EstimatedRobotPose> update(PhotonPipelineResult result) {
-    // Skip if we only have 1 target
-    // TODO change
-    if (result.getTargets().size() < 1) {
-      return Optional.empty();
-    }
-    var estPose =
-        VisionHelper.update(
-            result,
-            inputs.constants.intrinsicsMatrix(),
-            inputs.constants.distCoeffs(),
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            inputs.constants.robotToCamera(),
-            inputs.pnpTransform);
-    // // Reject if estimated pose is in the air or ground
-    if (estPose.isPresent() && Math.abs(estPose.get().estimatedPose.getZ()) > 0.25) {
-      return Optional.empty();
-    }
-    return estPose;
-  }
-
-  public String getName() {
-    return io.getName();
+  public Pose3d getEstimatedPose() {
+    return latestPose;
   }
 }

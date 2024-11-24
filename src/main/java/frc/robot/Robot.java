@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Swerve.ModuleInformation;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drivebase.GyroIO;
 import frc.robot.subsystems.drivebase.GyroIO_Real;
 import frc.robot.subsystems.drivebase.ModuleIO;
@@ -20,6 +21,10 @@ import frc.robot.subsystems.drivebase.ModuleIO_Real;
 import frc.robot.subsystems.drivebase.ModuleIO_Sim;
 import frc.robot.subsystems.drivebase.Swerve;
 import frc.robot.subsystems.vision.ApriltagCamera;
+import frc.robot.subsystems.vision.ApriltagCameraIO_Real;
+import frc.robot.subsystems.vision.ApriltagCameraIO_Sim;
+
+import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -31,7 +36,7 @@ public class Robot extends LoggedRobot {
 
   private Swerve drivebase;
 
-  private ApriltagCamera camera;
+  private ApriltagCamera[] cameras;
 
   public Robot() {
 
@@ -52,7 +57,14 @@ public class Robot extends LoggedRobot {
                 },
             RobotBase.isReal() ? new GyroIO_Real() : new GyroIO() {});
 
-    
+    cameras =
+        new ApriltagCamera[] {
+          new ApriltagCamera(
+              RobotBase.isReal()
+                  ? new ApriltagCameraIO_Real(VisionConstants.cameraInfo)
+                  : new ApriltagCameraIO_Sim(VisionConstants.cameraInfo),
+              VisionConstants.cameraInfo)
+        };
   }
 
   @Override
@@ -78,11 +90,17 @@ public class Robot extends LoggedRobot {
                         MathUtil.applyDeadband(-driver.getRightX(), 0.1) * 1d / 4)),
             drivebase));
 
+    LogTable.disableProtobufWarning();
     Logger.start();
   }
 
   @Override
   public void robotPeriodic() {
+
+    for (var camera : cameras) {
+      camera.updateInputs();
+    }
+
     CommandScheduler.getInstance().run();
   }
 }
