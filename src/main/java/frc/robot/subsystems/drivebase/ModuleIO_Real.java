@@ -59,7 +59,7 @@ public class ModuleIO_Real implements ModuleIO {
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.CurrentLimits.StatorCurrentLimit = 80;
-    driveConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    driveConfig.CurrentLimits.SupplyCurrentLimit = 65;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Feedback.SensorToMechanismRatio = Swerve.DriveGearing.L3.reduction; // TODO Verify
     driveConfig.Slot0.kS = 0; // TODO Tune
@@ -93,7 +93,7 @@ public class ModuleIO_Real implements ModuleIO {
     turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     turnConfig.CurrentLimits.StatorCurrentLimit = 40;
-    turnConfig.CurrentLimits.SupplyCurrentLimit = 25;
+    turnConfig.CurrentLimits.SupplyCurrentLimit = 30;
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turnConfig.Feedback.SensorToMechanismRatio = Swerve.TurnGearing; // TODO Verify
     turnConfig.Slot0.kS = 0; // TODO Tune
