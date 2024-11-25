@@ -57,6 +57,7 @@ public class ApriltagCamera {
 
     } else {
       latestPose = new Pose3d(new Translation3d(100, 100, 100), new Rotation3d());
+      stdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     Logger.processInputs("Vision/ApriltagCameras/" + cameraInfo.cameraName + "/", inputs);
