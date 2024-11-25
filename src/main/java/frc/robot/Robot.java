@@ -122,7 +122,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     for (var camera : cameras) {
-      if(RobotBase.isSimulation()){camera.updateSimPose(drivebase.getPose());}
+      if (RobotBase.isSimulation()) {
+        camera.updateSimPose(drivebase.getPose());
+      }
       camera.updateInputs();
       drivebase.addVisionMeasurement(
           camera.getEstimatedPose(), camera.getLatestTimestamp(), camera.getLatestStdDevs());

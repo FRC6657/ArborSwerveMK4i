@@ -1,9 +1,8 @@
 package frc.robot.subsystems.vision;
 
+import frc.robot.Constants.VisionConstants.CameraInfo;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
-
-import frc.robot.Constants.VisionConstants.CameraInfo;
 
 public class ApriltagCameraIO_Real implements ApriltagCameraIO {
 
