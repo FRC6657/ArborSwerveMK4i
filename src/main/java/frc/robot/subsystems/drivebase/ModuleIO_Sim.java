@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
@@ -41,7 +42,7 @@ public class ModuleIO_Sim implements ModuleIO {
     driveConfig.Slot0.kS = 0;
     driveConfig.Slot0.kA = 0.65;
     driveConfig.Slot0.kV = 12d / (Motors.KrakenRPS / Swerve.DriveGearing.L3.reduction);
-    driveConfig.Slot0.kP = 2.0;
+    driveConfig.Slot0.kP = 4.0;
     driveConfig.Slot0.kD = 0.2;
 
     drive.getConfigurator().apply(driveConfig);
@@ -60,7 +61,7 @@ public class ModuleIO_Sim implements ModuleIO {
     driveSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60(1), 0.005 / Swerve.DriveGearing.L3.reduction, 1),
+                DCMotor.getKrakenX60(1), 0.00075, 1),
             DCMotor.getKrakenX60(1));
 
     turnSim =
@@ -122,20 +123,19 @@ public class ModuleIO_Sim implements ModuleIO {
 
   @Override
   public void changeTurnSetpoint(double rad) {
-    turn.setControl(turnControl.withSlot(0).withPosition(rad / (2 * Math.PI)));
+    turn.setControl(turnControl.withSlot(0).withPosition(Units.radiansToRotations(rad)));
   }
 
   @Override
   public SwerveModulePosition getModulePosition() {
     return new SwerveModulePosition(
         drive.getPosition().getValueAsDouble() * (Swerve.WheelDiameter * Math.PI),
-        new Rotation2d(turn.getPosition().getValueAsDouble() * (2 * Math.PI)));
+        new Rotation2d(Units.rotationsToRadians(turn.getPosition().getValueAsDouble())));
   }
 
   @Override
   public SwerveModuleState getModuleState() {
-    return new SwerveModuleState(
-        drive.getVelocity().getValueAsDouble() * (Swerve.WheelDiameter * Math.PI),
+    return new SwerveModuleState(drive.getVelocity().getValueAsDouble() * (Swerve.WheelDiameter * Math.PI),
         new Rotation2d(turn.getPosition().getValueAsDouble() * (2 * Math.PI)));
   }
 }

@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -34,6 +35,14 @@ public class Constants {
     CAN(int id) {
       this.id = id;
     }
+  }
+
+  public static class AutoConstants {
+
+    // Choreo
+    public static final PIDController kXController = new PIDController(8, 0, 0);
+    public static final PIDController kYController = new PIDController(8, 0, 0);
+    public static final PIDController kThetaController = new PIDController(6, 0, 0);
   }
 
   public static class VisionConstants {
@@ -86,8 +95,8 @@ public class Constants {
     }
 
     public static double WheelDiameter = Units.inchesToMeters(4);
-    public static double TrackWidth = 26 - 5.25; // Inches
-    public static double TrackLength = 26 - 5.25; // Inches
+    public static double TrackWidth = Units.inchesToMeters(26 - 5.25); // Inches
+    public static double TrackLength = Units.inchesToMeters(26 - 5.25); // Inches
 
     public static Translation2d[] ModulePositions =
         new Translation2d[] {
