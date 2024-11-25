@@ -23,10 +23,12 @@ import frc.robot.Constants.Swerve.ModuleInformation;
 
 public class ModuleIO_Real implements ModuleIO {
 
+  // Module Hardware
   private TalonFX drive;
   private TalonFX turn;
   private Canandmag encoder;
 
+  // Module Control Variables
   private VelocityVoltage driveControl;
   private PositionVoltage turnControl;
 
@@ -48,13 +50,16 @@ public class ModuleIO_Real implements ModuleIO {
 
   public ModuleIO_Real(ModuleInformation moduleInformation) {
 
+    // Assign Module Hardware CAN IDs
     drive = new TalonFX(moduleInformation.driveID);
     turn = new TalonFX(moduleInformation.turnID);
     encoder = new Canandmag(moduleInformation.encoderID);
 
+    // Set Default Control Values
     driveControl = new VelocityVoltage(0);
     turnControl = new PositionVoltage(turn.getPosition().getValueAsDouble());
 
+    // Drive Motor Configuration
     var driveConfig = new TalonFXConfiguration();
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -71,6 +76,7 @@ public class ModuleIO_Real implements ModuleIO {
 
     drive.getConfigurator().apply(driveConfig);
 
+    // Drive Motor Status Signals
     driveApplied = drive.getMotorVoltage();
     driveStatorCurrent = drive.getStatorCurrent();
     driveSupplyCurrent = drive.getSupplyCurrent();
@@ -89,6 +95,7 @@ public class ModuleIO_Real implements ModuleIO {
 
     drive.optimizeBusUtilization();
 
+    // Turn Motor Configuration
     var turnConfig = new TalonFXConfiguration();
     turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -105,6 +112,7 @@ public class ModuleIO_Real implements ModuleIO {
 
     turn.getConfigurator().apply(turnConfig);
 
+    // Turn Motor Status Signals
     turnApplied = turn.getMotorVoltage();
     turnStatorCurrent = turn.getStatorCurrent();
     turnSupplyCurrent = turn.getSupplyCurrent();
@@ -123,7 +131,7 @@ public class ModuleIO_Real implements ModuleIO {
 
     turn.optimizeBusUtilization();
 
-    turn.setPosition(encoder.getAbsPosition()); // Sync the motor encoder with the abs encoder.
+    turn.setPosition(encoder.getAbsPosition()); // Sync the Turn Motor Encoder with the ABS Encoder.
   }
 
   @Override

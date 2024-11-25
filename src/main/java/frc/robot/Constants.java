@@ -15,7 +15,7 @@ public class Constants {
 
   public static double mainLoopFrequency = 50d; // Hz
 
-  public static enum CAN {
+  public static enum CAN { // TODO: Verify
     Swerve_FL_D(1),
     Swerve_FR_D(2),
     Swerve_BL_D(3),
@@ -40,9 +40,9 @@ public class Constants {
   public static class AutoConstants {
 
     // Choreo
-    public static final PIDController kXController = new PIDController(8, 0, 0);
-    public static final PIDController kYController = new PIDController(8, 0, 0);
-    public static final PIDController kThetaController = new PIDController(6, 0, 0);
+    public static final PIDController kXController = new PIDController(8, 0, 0); // TODO: Tune
+    public static final PIDController kYController = new PIDController(8, 0, 0); // TODO: Tune
+    public static final PIDController kThetaController = new PIDController(6, 0, 0); // TODO: Tune
   }
 
   public static class VisionConstants {
@@ -95,8 +95,8 @@ public class Constants {
     }
 
     public static double WheelDiameter = Units.inchesToMeters(4);
-    public static double TrackWidth = Units.inchesToMeters(26 - 5.25); // Inches
-    public static double TrackLength = Units.inchesToMeters(26 - 5.25); // Inches
+    public static double TrackWidth = Units.inchesToMeters(26 - 5.25); // TODO: Verify
+    public static double TrackLength = Units.inchesToMeters(26 - 5.25); // TODO: Verify
 
     public static Translation2d[] ModulePositions =
         new Translation2d[] {

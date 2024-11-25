@@ -29,6 +29,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
 
+  // Array for storing modules.
   private Module[] modules =
       new Module[] {
         new Module(new ModuleIO() {}, ""),
@@ -48,7 +49,6 @@ public class Swerve extends SubsystemBase {
       new SwerveDrivePoseEstimator(
           kinematics, new Rotation2d(gyroInputs.yaw), getModulePositions(), new Pose2d());
 
-
   public Swerve(ModuleIO[] moduleIOs, GyroIO gyroIO) {
 
     String[] moduleNames = new String[] {"Front Left", "Front Right", "Back Left", "Back Right"};
@@ -58,7 +58,6 @@ public class Swerve extends SubsystemBase {
     }
 
     this.gyroIO = gyroIO;
-
   }
 
   public Command drive(Supplier<ChassisSpeeds> fieldRelativeSpeeds) {
@@ -71,9 +70,10 @@ public class Swerve extends SubsystemBase {
         this);
   }
 
-  @AutoLogOutput(key="Swerve/FieldRelativeChassisSpeed")
-  public ChassisSpeeds getCurrentFieldRelativeSpeeds(){
-    return ChassisSpeeds.fromRobotRelativeSpeeds(kinematics.toChassisSpeeds(getModuleStates()), getPose().getRotation());
+  @AutoLogOutput(key = "Swerve/FieldRelativeChassisSpeed")
+  public ChassisSpeeds getCurrentFieldRelativeSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(
+        kinematics.toChassisSpeeds(getModuleStates()), getPose().getRotation());
   }
 
   public void driveChassisSpeeds(ChassisSpeeds desiredSpeeds) {
@@ -84,7 +84,9 @@ public class Swerve extends SubsystemBase {
       modules[i].changeState(states[i]);
     }
 
-    Logger.recordOutput("Swerve/Field Relative Chassis Speed Setpoint", ChassisSpeeds.fromRobotRelativeSpeeds(newSpeeds, getPose().getRotation()));
+    Logger.recordOutput(
+        "Swerve/Field Relative Chassis Speed Setpoint",
+        ChassisSpeeds.fromRobotRelativeSpeeds(newSpeeds, getPose().getRotation()));
     Logger.recordOutput("Swerve/Setpoints", states);
   }
 
@@ -170,8 +172,12 @@ public class Swerve extends SubsystemBase {
     if (RobotBase.isReal()) {
       poseEstimator.update(new Rotation2d(gyroInputs.yaw), getModulePositions());
     } else {
+      // Simulate Gyro Heading
       simHeading = poseEstimator.getEstimatedPosition().getRotation();
-      var gyroDelta = new Rotation2d(kinematics.toChassisSpeeds(getModuleStates()).omegaRadiansPerSecond * (1 / Constants.mainLoopFrequency));
+      var gyroDelta =
+          new Rotation2d(
+              kinematics.toChassisSpeeds(getModuleStates()).omegaRadiansPerSecond
+                  * (1 / Constants.mainLoopFrequency));
       simHeading = simHeading.plus(gyroDelta);
       poseEstimator.update(simHeading, getModulePositions());
     }

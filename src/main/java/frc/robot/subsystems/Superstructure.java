@@ -14,6 +14,7 @@ public class Superstructure {
     this.drivebase = drivebase;
   }
 
+  // Simple Test Auto that just runs a path.
   public AutoLoop testAuto(AutoFactory factory) {
 
     final AutoLoop routine = factory.newLoop("Test Auto");

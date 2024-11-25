@@ -11,8 +11,9 @@ import frc.robot.Constants.CAN;
 
 public class GyroIO_Real implements GyroIO {
 
-  public Pigeon2 gyro;
+  public Pigeon2 gyro; // Gryo
 
+  // Status Signals for Logged Values
   StatusSignal<Angle> yaw;
   StatusSignal<Angle> pitch;
   StatusSignal<Angle> roll;
@@ -22,8 +23,9 @@ public class GyroIO_Real implements GyroIO {
 
   public GyroIO_Real() {
 
-    gyro = new Pigeon2(CAN.Gyro.id);
+    gyro = new Pigeon2(CAN.Gyro.id); // Assign Gyro CAN ID
 
+    // Assign Status Signals
     yaw = gyro.getYaw();
     pitch = gyro.getPitch();
     roll = gyro.getRoll();
@@ -31,6 +33,7 @@ public class GyroIO_Real implements GyroIO {
     xAccel = gyro.getAccelerationX();
     yAccel = gyro.getAccelerationY();
 
+    // Set update frequencies for Logged Values
     yaw.setUpdateFrequency(Constants.mainLoopFrequency);
     pitch.setUpdateFrequency(Constants.mainLoopFrequency);
     roll.setUpdateFrequency(Constants.mainLoopFrequency);
@@ -38,11 +41,13 @@ public class GyroIO_Real implements GyroIO {
     xAccel.setUpdateFrequency(Constants.mainLoopFrequency);
     yAccel.setUpdateFrequency(Constants.mainLoopFrequency);
 
+    // Turn off status signals for stuff not being used.
     gyro.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
+    // Update inputs from gyro readings.
     inputs.yaw = Units.degreesToRadians(yaw.getValueAsDouble());
     inputs.pitch = Units.degreesToRadians(pitch.getValueAsDouble());
     inputs.roll = Units.degreesToRadians(roll.getValueAsDouble());

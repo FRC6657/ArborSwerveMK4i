@@ -60,8 +60,7 @@ public class ModuleIO_Sim implements ModuleIO {
 
     driveSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60(1), 0.00075, 1),
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.00075, 1),
             DCMotor.getKrakenX60(1));
 
     turnSim =
@@ -135,7 +134,8 @@ public class ModuleIO_Sim implements ModuleIO {
 
   @Override
   public SwerveModuleState getModuleState() {
-    return new SwerveModuleState(drive.getVelocity().getValueAsDouble() * (Swerve.WheelDiameter * Math.PI),
+    return new SwerveModuleState(
+        drive.getVelocity().getValueAsDouble() * (Swerve.WheelDiameter * Math.PI),
         new Rotation2d(turn.getPosition().getValueAsDouble() * (2 * Math.PI)));
   }
 }

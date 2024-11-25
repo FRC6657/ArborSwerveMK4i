@@ -87,6 +87,7 @@ public class Robot extends LoggedRobot {
             new AutoBindings());
   }
 
+  @SuppressWarnings("resource")
   @Override
   public void robotInit() {
 
