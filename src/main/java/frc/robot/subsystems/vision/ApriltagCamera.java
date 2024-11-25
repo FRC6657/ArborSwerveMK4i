@@ -11,6 +11,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -55,12 +56,26 @@ public class ApriltagCamera {
       latestTimestamp = result.get().timestampSeconds;
       stdDevs = getEstimationStdDevs(latestPose.toPose2d(), inputs.result);
 
+      Translation2d[] tagCorners = new Translation2d[inputs.result.targets.size() * 4];
+
+      int tagIndex = 0;
+      for (var tag : inputs.result.targets) {
+        for (var corner : tag.getDetectedCorners()) {
+          tagCorners[tagIndex] = new Translation2d(corner.x, corner.y);
+          tagIndex++;
+        }
+      }
+
+      Logger.recordOutput(
+          "Vision/ApriltagCameras/" + cameraInfo.cameraName + "/Corners", tagCorners);
+
     } else {
       latestPose = new Pose3d(new Translation3d(100, 100, 100), new Rotation3d());
       stdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+      Logger.recordOutput("Vision/ApriltagCameras/" + cameraInfo.cameraName + "/Corners", new Translation2d[]{});
     }
 
-    Logger.processInputs("Vision/ApriltagCameras/" + cameraInfo.cameraName + "/", inputs);
+    Logger.processInputs("Vision/ApriltagCameras/" + cameraInfo.cameraName + "/Inputs", inputs);
     Logger.recordOutput("Vision/ApriltagCameras/" + cameraInfo.cameraName + "/Pose", latestPose);
   }
 
