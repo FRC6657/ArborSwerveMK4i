@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
+import frc.robot.util.RepulsorFieldPlanner;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -48,6 +49,8 @@ public class Swerve extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(
           kinematics, new Rotation2d(gyroInputs.yaw), getModulePositions(), new Pose2d());
+
+  private RepulsorFieldPlanner repulsor = new RepulsorFieldPlanner();
 
   public Swerve(ModuleIO[] moduleIOs, GyroIO gyroIO) {
 
@@ -84,9 +87,7 @@ public class Swerve extends SubsystemBase {
       modules[i].changeState(states[i]);
     }
 
-    Logger.recordOutput(
-        "Swerve/Field Relative Chassis Speed Setpoint",
-        ChassisSpeeds.fromRobotRelativeSpeeds(newSpeeds, getPose().getRotation()));
+    Logger.recordOutput("Swerve/Field Relative Chassis Speed Setpoint", ChassisSpeeds.fromRobotRelativeSpeeds(newSpeeds, getPose().getRotation()));
     Logger.recordOutput("Swerve/Setpoints", states);
   }
 
@@ -130,13 +131,48 @@ public class Swerve extends SubsystemBase {
     }
   }
 
-  public void choreoController(Pose2d currentPose, SwerveSample sample) {
+  public Command repulsorCommand(Supplier<Pose2d> target) {
+    return this.run(
+        () -> {
+          Logger.recordOutput("Swerve/Repulsor/EndGoal", target.get());
+          repulsor.setGoal(target.get().getTranslation());
+          repulsorController(getPose(), repulsor.getCmd(() -> getPose(), 0.1));
+        });
+  }
 
-    PIDController xController = AutoConstants.kXController;
-    PIDController yController = AutoConstants.kYController;
-    PIDController thetaController = AutoConstants.kThetaController;
+  public void repulsorController(Pose2d currentPose, SwerveSample sample) {
+
+    PIDController xController = AutoConstants.kXController_Repulsor;
+    PIDController yController = AutoConstants.kYController_Repulsor;
+    PIDController thetaController = AutoConstants.kThetaController_Repulsor;
 
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    double xFeedback = xController.calculate(currentPose.getX(), sample.x);
+    double yFeedback = yController.calculate(currentPose.getY(), sample.y);
+    double rotationFeedback =
+        thetaController.calculate(currentPose.getRotation().getRadians(), sample.heading);
+
+    Logger.recordOutput("Swerve/Repulsor/DesiredPose", sample.getPose());
+    Logger.recordOutput("Swerve/Repulsor/DesiredXVelocity", xFeedback);
+    Logger.recordOutput("Swerve/Repulsor/DesiredYVelocity", yFeedback);
+
+    ChassisSpeeds out =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            xFeedback, yFeedback, rotationFeedback, currentPose.getRotation());
+
+    driveChassisSpeeds(out);
+  }
+
+  PIDController choreoXController = AutoConstants.kXController_Choreo;
+  PIDController choreoYController = AutoConstants.kYController_Choreo;
+  PIDController choreoThetaController = AutoConstants.kThetaController_Choreo;
+
+  public void followTrajectory(SwerveSample sample) {
+
+    Pose2d currentPose = getPose();
+
+    choreoThetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     Logger.recordOutput("Swerve/Auto/DesiredPose", sample.getPose());
     Logger.recordOutput("Swerve/Auto/DesiredXVelocity", sample.vx);
@@ -146,10 +182,9 @@ public class Swerve extends SubsystemBase {
     double yFF = sample.vy;
     double rotationFF = sample.omega;
 
-    double xFeedback = xController.calculate(currentPose.getX(), sample.x);
-    double yFeedback = yController.calculate(currentPose.getY(), sample.y);
-    double rotationFeedback =
-        thetaController.calculate(currentPose.getRotation().getRadians(), sample.heading);
+    double xFeedback = choreoXController.calculate(currentPose.getX(), sample.x);
+    double yFeedback = choreoYController.calculate(currentPose.getY(), sample.y);
+    double rotationFeedback = choreoThetaController.calculate(currentPose.getRotation().getRadians(), sample.heading);
 
     ChassisSpeeds out =
         ChassisSpeeds.fromFieldRelativeSpeeds(

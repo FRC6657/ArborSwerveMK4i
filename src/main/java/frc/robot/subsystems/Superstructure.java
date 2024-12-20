@@ -1,28 +1,44 @@
 package frc.robot.subsystems;
 
 import choreo.auto.AutoFactory;
-import choreo.auto.AutoLoop;
+import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drivebase.Swerve;
+import frc.robot.subsystems.example_intake.ExampleIntake;
+import org.littletonrobotics.junction.Logger;
 
 public class Superstructure {
 
   Swerve drivebase;
+  ExampleIntake intake;
 
-  public Superstructure(Swerve drivebase) {
+  public Superstructure(Swerve drivebase, ExampleIntake intake) {
     this.drivebase = drivebase;
+    this.intake = intake;
+  }
+
+  public void update3DPose() {
+    Pose3d[] mechanismPoses = new Pose3d[4];
+    mechanismPoses[0] = new Pose3d();
+    mechanismPoses[1] = intake.getMechanismPose();
+    mechanismPoses[2] = new Pose3d();
+    mechanismPoses[3] = new Pose3d();
+    Logger.recordOutput("3D Poses", mechanismPoses);
   }
 
   // Simple Test Auto that just runs a path.
-  public AutoLoop testAuto(AutoFactory factory) {
+  public AutoRoutine testAuto(AutoFactory factory) {
 
-    final AutoLoop routine = factory.newLoop("Test Auto");
+    final AutoRoutine routine = factory.newRoutine("Test Auto");
 
-    final AutoTrajectory testPath = factory.trajectory("TestPath", routine);
+    //final AutoTrajectory testPath = factory.trajectory("TestPath", routine);
+    final AutoTrajectory testPath = routine.trajectory("TestPath");
 
     routine
-        .enabled()
+        .active()
         .onTrue(
             drivebase
                 .resetOdometry(
@@ -34,6 +50,9 @@ public class Superstructure {
                               return new Pose2d();
                             }))
                 .andThen(testPath.cmd()));
+
+    testPath.atTime("ExtendIntake").onTrue(Commands.runOnce(intake::down));
+    testPath.atTime("RetractIntake").onTrue(Commands.runOnce(intake::up));
 
     return routine;
   }

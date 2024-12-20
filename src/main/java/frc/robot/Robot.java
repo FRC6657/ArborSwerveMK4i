@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Swerve.ModuleInformation;
 import frc.robot.Constants.VisionConstants;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.drivebase.ModuleIO;
 import frc.robot.subsystems.drivebase.ModuleIO_Real;
 import frc.robot.subsystems.drivebase.ModuleIO_Sim;
 import frc.robot.subsystems.drivebase.Swerve;
+import frc.robot.subsystems.example_intake.ExampleIntake;
 import frc.robot.subsystems.vision.ApriltagCamera;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Real;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Sim;
@@ -42,6 +44,7 @@ public class Robot extends LoggedRobot {
   private CommandXboxController driver = new CommandXboxController(0);
 
   private Swerve drivebase;
+  private ExampleIntake intake;
   private ApriltagCamera[] cameras;
 
   private Superstructure superstructure;
@@ -67,6 +70,8 @@ public class Robot extends LoggedRobot {
                 },
             RobotBase.isReal() ? new GyroIO_Real() : new GyroIO() {});
 
+    intake = new ExampleIntake();
+
     cameras =
         new ApriltagCamera[] {
           new ApriltagCamera(
@@ -76,15 +81,16 @@ public class Robot extends LoggedRobot {
               VisionConstants.cameraInfo)
         };
 
-    superstructure = new Superstructure(drivebase);
+    superstructure = new Superstructure(drivebase, intake);
 
-    autoFactory =
-        Choreo.createAutoFactory(
-            drivebase,
-            drivebase::getPose,
-            drivebase::choreoController,
-            this::isRedAlliance,
-            new AutoBindings());
+    autoFactory = new AutoFactory(
+      drivebase::getPose,
+      drivebase::resetOdometry,
+      drivebase::followTrajectory,
+      true,
+      drivebase,
+      new AutoBindings()
+    );
   }
 
   @SuppressWarnings("resource")
@@ -115,6 +121,11 @@ public class Robot extends LoggedRobot {
             drivebase.resetOdometry(
                 new Pose2d(new Translation2d(2, 2), Rotation2d.fromDegrees(30))));
 
+    driver.leftTrigger().onTrue(Commands.runOnce(intake::up, intake));
+    driver.rightTrigger().onTrue(Commands.runOnce(intake::down, intake));
+
+    driver.b().whileTrue(drivebase.repulsorCommand(() -> new Pose2d(2, 5.5, Rotation2d.kZero)));
+
     LogTable.disableProtobufWarning();
     Logger.start();
   }
@@ -130,6 +141,8 @@ public class Robot extends LoggedRobot {
           camera.getEstimatedPose(), camera.getLatestTimestamp(), camera.getLatestStdDevs());
     }
 
+    superstructure.update3DPose();
+
     CommandScheduler.getInstance().run();
   }
 
@@ -138,7 +151,4 @@ public class Robot extends LoggedRobot {
     superstructure.testAuto(autoFactory).cmd().schedule();
   }
 
-  private boolean isRedAlliance() {
-    return DriverStation.getAlliance().orElseGet(() -> Alliance.Blue).equals(Alliance.Red);
-  }
 }

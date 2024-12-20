@@ -4,8 +4,10 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -40,9 +42,20 @@ public class Constants {
   public static class AutoConstants {
 
     // Choreo
-    public static final PIDController kXController = new PIDController(8, 0, 0); // TODO: Tune
-    public static final PIDController kYController = new PIDController(8, 0, 0); // TODO: Tune
-    public static final PIDController kThetaController = new PIDController(6, 0, 0); // TODO: Tune
+    public static final PIDController kXController_Choreo =
+        new PIDController(8, 0, 0); // TODO: Tune
+    public static final PIDController kYController_Choreo =
+        new PIDController(8, 0, 0); // TODO: Tune
+    public static final PIDController kThetaController_Choreo =
+        new PIDController(6, 0, 0); // TODO: Tune
+
+    // Repulsor
+    public static final PIDController kXController_Repulsor =
+        new PIDController(40, 0, 0); // TODO: Tune
+    public static final PIDController kYController_Repulsor =
+        new PIDController(40, 0, 0); // TODO: Tune
+    public static final PIDController kThetaController_Repulsor =
+        new PIDController(40, 0, 0); // TODO: Tune
   }
 
   public static class VisionConstants {
@@ -65,7 +78,11 @@ public class Constants {
 
     public static CameraInfo cameraInfo =
         new CameraInfo(
-            "Camera", new Transform3d(), Rotation2d.fromDegrees(95), new int[] {1280, 800});
+            "Camera",
+            new Transform3d(
+                new Translation3d(-0.343236, 0, 0.531201), new Rotation3d(0, -0.485314, Math.PI)),
+            Rotation2d.fromDegrees(95),
+            new int[] {1280, 800});
 
     public static final Matrix<N3, N1> singleTagStdDev =
         VecBuilder.fill(0.4, 0.4, Double.MAX_VALUE);

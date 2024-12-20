@@ -27,6 +27,7 @@ public class ApriltagCameraIO_Sim implements ApriltagCameraIO {
     cameraProp.setExposureTimeMs(20);
     cameraProp.setFPS(50);
     cameraProp.setLatencyStdDevMs(5.0);
+
     this.camera = new PhotonCamera(cameraInfo.cameraName);
     this.cameraSim = new PhotonCameraSim(camera, cameraProp);
     cameraSim.enableDrawWireframe(true);
