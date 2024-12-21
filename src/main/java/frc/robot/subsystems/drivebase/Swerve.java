@@ -87,7 +87,9 @@ public class Swerve extends SubsystemBase {
       modules[i].changeState(states[i]);
     }
 
-    Logger.recordOutput("Swerve/Field Relative Chassis Speed Setpoint", ChassisSpeeds.fromRobotRelativeSpeeds(newSpeeds, getPose().getRotation()));
+    Logger.recordOutput(
+        "Swerve/Field Relative Chassis Speed Setpoint",
+        ChassisSpeeds.fromRobotRelativeSpeeds(newSpeeds, getPose().getRotation()));
     Logger.recordOutput("Swerve/Setpoints", states);
   }
 
@@ -184,7 +186,8 @@ public class Swerve extends SubsystemBase {
 
     double xFeedback = choreoXController.calculate(currentPose.getX(), sample.x);
     double yFeedback = choreoYController.calculate(currentPose.getY(), sample.y);
-    double rotationFeedback = choreoThetaController.calculate(currentPose.getRotation().getRadians(), sample.heading);
+    double rotationFeedback =
+        choreoThetaController.calculate(currentPose.getRotation().getRadians(), sample.heading);
 
     ChassisSpeeds out =
         ChassisSpeeds.fromFieldRelativeSpeeds(

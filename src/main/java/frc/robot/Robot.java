@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoFactory.AutoBindings;
 import edu.wpi.first.math.MathUtil;
@@ -12,8 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -83,14 +80,14 @@ public class Robot extends LoggedRobot {
 
     superstructure = new Superstructure(drivebase, intake);
 
-    autoFactory = new AutoFactory(
-      drivebase::getPose,
-      drivebase::resetOdometry,
-      drivebase::followTrajectory,
-      true,
-      drivebase,
-      new AutoBindings()
-    );
+    autoFactory =
+        new AutoFactory(
+            drivebase::getPose,
+            drivebase::resetOdometry,
+            drivebase::followTrajectory,
+            true,
+            drivebase,
+            new AutoBindings().bind("intake_down", intake.down()).bind("intake_up", intake.up()));
   }
 
   @SuppressWarnings("resource")
@@ -150,5 +147,4 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     superstructure.testAuto(autoFactory).cmd().schedule();
   }
-
 }

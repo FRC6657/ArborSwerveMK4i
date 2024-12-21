@@ -5,7 +5,6 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drivebase.Swerve;
 import frc.robot.subsystems.example_intake.ExampleIntake;
 import org.littletonrobotics.junction.Logger;
@@ -32,10 +31,9 @@ public class Superstructure {
   // Simple Test Auto that just runs a path.
   public AutoRoutine testAuto(AutoFactory factory) {
 
-    final AutoRoutine routine = factory.newRoutine("Test Auto");
+    final AutoRoutine routine = factory.newRoutine("Test");
 
-    //final AutoTrajectory testPath = factory.trajectory("TestPath", routine);
-    final AutoTrajectory testPath = routine.trajectory("TestPath");
+    final AutoTrajectory testPath = routine.trajectory("Test");
 
     routine
         .active()
@@ -50,9 +48,6 @@ public class Superstructure {
                               return new Pose2d();
                             }))
                 .andThen(testPath.cmd()));
-
-    testPath.atTime("ExtendIntake").onTrue(Commands.runOnce(intake::down));
-    testPath.atTime("RetractIntake").onTrue(Commands.runOnce(intake::up));
 
     return routine;
   }
