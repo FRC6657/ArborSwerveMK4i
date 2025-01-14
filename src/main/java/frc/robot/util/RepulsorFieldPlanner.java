@@ -1,7 +1,6 @@
 package frc.robot.util;
 
 import choreo.trajectory.SwerveSample;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,7 +10,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-@Logged
 public class RepulsorFieldPlanner {
 
   abstract static class Obstacle {

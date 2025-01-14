@@ -5,7 +5,6 @@
 package frc.robot;
 
 import choreo.auto.AutoFactory;
-import choreo.auto.AutoFactory.AutoBindings;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,7 +29,6 @@ import frc.robot.subsystems.example_intake.ExampleIntake;
 import frc.robot.subsystems.vision.ApriltagCamera;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Real;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Sim;
-import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -82,12 +80,13 @@ public class Robot extends LoggedRobot {
 
     autoFactory =
         new AutoFactory(
-            drivebase::getPose,
-            drivebase::resetOdometry,
-            drivebase::followTrajectory,
-            true,
-            drivebase,
-            new AutoBindings().bind("intake_down", intake.down()).bind("intake_up", intake.up()));
+                drivebase::getPose,
+                drivebase::resetOdometry,
+                drivebase::followTrajectory,
+                true,
+                drivebase)
+            .bind("intake_down", intake.down())
+            .bind("intake_up", intake.up());
   }
 
   @SuppressWarnings("resource")
@@ -123,7 +122,6 @@ public class Robot extends LoggedRobot {
 
     driver.b().whileTrue(drivebase.repulsorCommand(() -> new Pose2d(2, 5.5, Rotation2d.kZero)));
 
-    LogTable.disableProtobufWarning();
     Logger.start();
   }
 

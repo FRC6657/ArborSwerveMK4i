@@ -17,16 +17,18 @@ public class ExampleIntake extends SubsystemBase {
 
   public Command up() {
     return this.runOnce(
-        () -> {
-          rotation = 152;
-        }).andThen(Commands.print("Up"));
+            () -> {
+              rotation = 152;
+            })
+        .andThen(Commands.print("Up"));
   }
 
   public Command down() {
     return this.runOnce(
-        () -> {
-          rotation = -19;
-        }).andThen(Commands.print("Down"));
+            () -> {
+              rotation = -19;
+            })
+        .andThen(Commands.print("Down"));
   }
 
   public Pose3d getMechanismPose() {
