@@ -6,41 +6,37 @@ package frc.robot;
 
 import choreo.auto.AutoFactory;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.Swerve.ModuleInformation;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.drivebase.GyroIO;
-import frc.robot.subsystems.drivebase.GyroIO_Real;
-import frc.robot.subsystems.drivebase.ModuleIO;
-import frc.robot.subsystems.drivebase.ModuleIO_Real;
-import frc.robot.subsystems.drivebase.ModuleIO_Sim;
-import frc.robot.subsystems.drivebase.Swerve;
-import frc.robot.subsystems.example_intake.ExampleIntake;
-import frc.robot.subsystems.vision.ApriltagCamera;
+import frc.robot.subsystems.swerve.GyroIO;
+import frc.robot.subsystems.swerve.GyroIO_Real;
+import frc.robot.subsystems.swerve.ModuleIO;
+import frc.robot.subsystems.swerve.ModuleIO_Real;
+import frc.robot.subsystems.swerve.ModuleIO_Sim;
+import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Real;
 import frc.robot.subsystems.vision.ApriltagCameraIO_Sim;
+import frc.robot.subsystems.vision.ApriltagCameras;
+import frc.robot.subsystems.vision.VisionConstants;
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
 
   private CommandXboxController driver = new CommandXboxController(0);
 
-  private Swerve drivebase;
-  private ExampleIntake intake;
-  private ApriltagCamera[] cameras;
+  private final Swerve swerve;
+  private final ApriltagCameras cameras;
 
   private Superstructure superstructure;
 
@@ -48,50 +44,59 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
 
-    drivebase =
+    swerve =
         new Swerve(
-            RobotBase.isReal()
-                ? new ModuleIO[] {
-                  new ModuleIO_Real(ModuleInformation.frontLeft),
-                  new ModuleIO_Real(ModuleInformation.frontRight),
-                  new ModuleIO_Real(ModuleInformation.backLeft),
-                  new ModuleIO_Real(ModuleInformation.backRight)
-                }
-                : new ModuleIO[] {
-                  new ModuleIO_Sim(ModuleInformation.frontLeft),
-                  new ModuleIO_Sim(ModuleInformation.frontRight),
-                  new ModuleIO_Sim(ModuleInformation.backLeft),
-                  new ModuleIO_Sim(ModuleInformation.backRight)
-                },
-            RobotBase.isReal() ? new GyroIO_Real() : new GyroIO() {});
-
-    intake = new ExampleIntake();
+            RobotBase.isReal() ? new GyroIO_Real() : new GyroIO() {},
+            new ModuleIO[] {
+              RobotBase.isReal()
+                  ? new ModuleIO_Real(SwerveConstants.frontLeftModule)
+                  : new ModuleIO_Sim(SwerveConstants.frontLeftModule),
+              RobotBase.isReal()
+                  ? new ModuleIO_Real(SwerveConstants.frontRightModule)
+                  : new ModuleIO_Sim(SwerveConstants.frontRightModule),
+              RobotBase.isReal()
+                  ? new ModuleIO_Real(SwerveConstants.backLeftModule)
+                  : new ModuleIO_Sim(SwerveConstants.backLeftModule),
+              RobotBase.isReal()
+                  ? new ModuleIO_Real(SwerveConstants.backRightModule)
+                  : new ModuleIO_Sim(SwerveConstants.backRightModule)
+            });
 
     cameras =
-        new ApriltagCamera[] {
-          new ApriltagCamera(
-              RobotBase.isReal()
-                  ? new ApriltagCameraIO_Real(VisionConstants.cameraInfo)
-                  : new ApriltagCameraIO_Sim(VisionConstants.cameraInfo),
-              VisionConstants.cameraInfo)
-        };
+        new ApriltagCameras(
+            swerve::addVisionMeasurement,
+            RobotBase.isReal() || replay
+                ? new ApriltagCameraIO_Real(VisionConstants.cameraInfo)
+                : new ApriltagCameraIO_Sim(VisionConstants.cameraInfo, swerve::getPose),
+            RobotBase.isReal() || replay
+                ? new ApriltagCameraIO_Real(VisionConstants.cameraInfo)
+                : new ApriltagCameraIO_Sim(VisionConstants.cameraInfo, swerve::getPose));
 
-    superstructure = new Superstructure(drivebase, intake);
+    superstructure = new Superstructure(swerve);
 
     autoFactory =
-        new AutoFactory(
-                drivebase::getPose,
-                drivebase::resetOdometry,
-                drivebase::followTrajectory,
-                true,
-                drivebase)
-            .bind("intake_down", intake.down())
-            .bind("intake_up", intake.up());
+        new AutoFactory(swerve::getPose, swerve::resetPose, swerve::followTrajectory, true, swerve);
   }
+
+  public static boolean replay = false;
 
   @SuppressWarnings("resource")
   @Override
   public void robotInit() {
+
+    swerve.setDefaultCommand(
+        swerve.driveTeleop(
+            () ->
+                new ChassisSpeeds(
+                    -MathUtil.applyDeadband(driver.getLeftY(), 0.1)
+                        * SwerveConstants.maxLinearSpeed
+                        * 0.3,
+                    -MathUtil.applyDeadband(driver.getLeftX(), 0.1)
+                        * SwerveConstants.maxLinearSpeed
+                        * 0.3,
+                    -MathUtil.applyDeadband(driver.getRightX(), 0.1)
+                        * SwerveConstants.maxAngularSpeed
+                        * 0.3)));
 
     Logger.recordMetadata("ArborSwerveMK4i", "ArborSwerveMK4i");
 
@@ -100,44 +105,21 @@ public class Robot extends LoggedRobot {
       Logger.addDataReceiver(new NT4Publisher());
       new PowerDistribution(1, ModuleType.kRev);
     } else {
-      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+      if (!replay) {
+        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+      } else {
+        setUseTiming(false);
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replay")));
+      }
     }
-
-    drivebase.setDefaultCommand(
-        drivebase.drive(
-            () ->
-                new ChassisSpeeds(
-                    MathUtil.applyDeadband(-driver.getLeftY(), 0.1) * 5,
-                    MathUtil.applyDeadband(-driver.getLeftX(), 0.1) * 5,
-                    MathUtil.applyDeadband(-driver.getRightX(), 0.1) * 7)));
-
-    driver
-        .a()
-        .onTrue(
-            drivebase.resetOdometry(
-                new Pose2d(new Translation2d(2, 2), Rotation2d.fromDegrees(30))));
-
-    driver.leftTrigger().onTrue(Commands.runOnce(intake::up, intake));
-    driver.rightTrigger().onTrue(Commands.runOnce(intake::down, intake));
-
-    driver.b().whileTrue(drivebase.repulsorCommand(() -> new Pose2d(2, 5.5, Rotation2d.kZero)));
 
     Logger.start();
   }
 
   @Override
   public void robotPeriodic() {
-    for (var camera : cameras) {
-      if (RobotBase.isSimulation()) {
-        camera.updateSimPose(drivebase.getPose());
-      }
-      camera.updateInputs();
-      drivebase.addVisionMeasurement(
-          camera.getEstimatedPose(), camera.getLatestTimestamp(), camera.getLatestStdDevs());
-    }
-
-    superstructure.update3DPose();
-
     CommandScheduler.getInstance().run();
   }
 
